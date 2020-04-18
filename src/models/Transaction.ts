@@ -2,8 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  UpdateDateColumn,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -19,22 +19,19 @@ class Transaction {
   title: string;
 
   @Column()
-  type: 'income' | 'outcome';
-
-  @Column()
   value: number;
 
   @Column()
-  category_id: string;
+  type: 'income' | 'outcome';
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, category => category.id, { eager: true })
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at: Date;
 }
 

@@ -22,24 +22,22 @@ class CreateTransactionService {
     const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
 
-    if (
-      type === 'outcome' &&
-      (await transactionRepository.getBalance()).total < value
-    ) {
-      throw new AppError(
-        "You don't have enough money to make this transaction",
-      );
+    const { total } = await transactionRepository.getBalance();
+
+    const ifHaveMoney =
+      type === 'income' || (type === 'outcome' && total > value);
+
+    if (!ifHaveMoney) {
+      throw new AppError('Insufficient funds', 400);
     }
 
-    const categoryTitileToLowerCase = category.toLowerCase();
-
     let checkIfCategoryExist = await categoryRepository.findOne({
-      where: { title: categoryTitileToLowerCase },
+      where: { title: category },
     });
 
     if (!checkIfCategoryExist) {
       checkIfCategoryExist = categoryRepository.create({
-        title: categoryTitileToLowerCase,
+        title: category,
       });
       await categoryRepository.save(checkIfCategoryExist);
     }
@@ -51,7 +49,7 @@ class CreateTransactionService {
       category: checkIfCategoryExist,
     });
 
-    transactionRepository.save(transaction);
+    await transactionRepository.save(transaction);
 
     return transaction;
   }
