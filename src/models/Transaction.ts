@@ -28,6 +28,9 @@ class Transaction {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
+  @Column()
+  category_id: string;
+
   @CreateDateColumn({ select: false })
   created_at: Date;
 
